@@ -16,28 +16,24 @@ class HuristicSolution{
 
 	int huristicLevel = 0;
 	Moves lastMove = Moves.NONE;
+	Moves tempLastMove = Moves.NONE;
 	Moves[]possibleMoves;
 
 	void solvePuzzle(int [] arr) {
-		System.out.println(getHuristicValue(arr));
-		for(Moves m:getPossibleMoves(arr)) {
-			System.out.println(m.value);
-		}
+		
 		int level = 0;
 		while(!isArraysMatching(goalArray, arr)) {
 			
 			level++;
 			Moves moves[];
-			if(lastMove.equals(Moves.NONE)) {
-				moves = getPossibleMoves(arr);
-			}else {
-				moves = new Moves[getPossibleMoves(arr).length-1];
-				for(int i=0;i<getPossibleMoves(arr).length-1;i++) {
-					if(!getPossibleMoves(arr)[i].equals(lastMove)) {
-						moves[i]=getPossibleMoves(arr)[i];
+			
+				moves = new Moves[getPossibleMoves(arr,tempLastMove).length];
+				for(int i=0;i<getPossibleMoves(arr,tempLastMove).length;i++) {
+					if(!getPossibleMoves(arr,tempLastMove)[i].equals(tempLastMove)) {
+						moves[i]=getPossibleMoves(arr,tempLastMove)[i];
 					}
 				}
-			}
+			
 			int huristicValue[] = new int[moves.length];
 			
 			for(int i=0;i<moves.length;i++) {
@@ -46,38 +42,53 @@ class HuristicSolution{
 					temp[j]=arr[j];
 				}
 				System.out.println("TEMP");
-				if(moves[i].equals(Moves.DOWN)&&!lastMove.equals(Moves.UP)) {
+				if(moves[i].equals(Moves.DOWN)) {
 					temp = moveTileDown(getBlankPosition(temp), temp);
-				}else if(moves[i].equals(Moves.UP)&&!lastMove.equals(Moves.DOWN)) {
+					tempLastMove = Moves.DOWN;
+				}else if(moves[i].equals(Moves.UP)) {
 					temp = moveTileUp(getBlankPosition(temp), temp);
-				}else if(moves[i].equals(Moves.RIGHT)&&!lastMove.equals(Moves.LEFT)) {
+					tempLastMove = Moves.UP;
+
+				}else if(moves[i].equals(Moves.RIGHT)) {
 					temp = moveTileRight(getBlankPosition(temp), temp);
-				}else if(moves[i].equals(Moves.LEFT)&&!lastMove.equals(Moves.RIGHT)) {
+					tempLastMove = Moves.RIGHT;
+
+				}else if(moves[i].equals(Moves.LEFT)) {
 					temp = moveTileLeft(getBlankPosition(temp), temp);
+					tempLastMove = Moves.LEFT;
+
 				}
 				huristicValue[i]=getHuristicValue(temp);
 			}
+			
 			int minHuresticIndex = getMinHuristicArrIndex(huristicValue);
 			Moves move =moves[minHuresticIndex];
-			if(move.equals(Moves.DOWN)&&!lastMove.equals(Moves.UP)) {
+			if(move.equals(Moves.DOWN)) {
 				System.out.println("real Move");
 				 moveTileDown(getBlankPosition(arr), arr);
-			}else if(move.equals(Moves.UP)&&!lastMove.equals(Moves.DOWN)) {
+				 lastMove = move;
+				 tempLastMove = move;
+			}else if(move.equals(Moves.UP)) {
 				System.out.println("real Move");
 				 moveTileUp(getBlankPosition(arr), arr);
-			}else if(move.equals(Moves.RIGHT)&&!lastMove.equals(Moves.LEFT)) {
+				 lastMove = move;
+				 tempLastMove = move;
+			}else if(move.equals(Moves.RIGHT)) {
 				System.out.println("real Move");
 				moveTileRight(getBlankPosition(arr), arr);
-			}else if(move.equals(Moves.LEFT)&&!lastMove.equals(Moves.RIGHT)) {
+				 lastMove = move;
+				 tempLastMove = move;
+			}else if(move.equals(Moves.LEFT)) {
 				System.out.println("real Move");
 				 moveTileLeft(getBlankPosition(arr), arr);
+				 lastMove = move;
+				 tempLastMove = move;
 			}
 			
-			System.out.println("minHuristicIndex "+move.value);
+			System.out.println("minHuristic move "+move.value+" level "+level);
 			
 		}
 		
-		int temp[] = new int[9];
 		
 		
 	}
@@ -119,7 +130,7 @@ class HuristicSolution{
 		return arr;
 	}
 
-	Moves[] getPossibleMoves(int[] arr) {
+	Moves[] getPossibleMoves(int[] arr,Moves lastMove) {
 		Moves [] moves;
 		int blankPosition = getBlankPosition(arr)+1;
 		if(blankPosition<=3) {
@@ -127,18 +138,15 @@ class HuristicSolution{
 				moves = new Moves[2];
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.LEFT;
-				return moves;
 			}else if(blankPosition%3==1){
 				moves = new Moves[2];
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.RIGHT;
-				return moves;
 			}else {
 				moves = new Moves[3];
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.RIGHT;
-				moves[1] = Moves.LEFT;
-				return moves;
+				moves[2] = Moves.LEFT;
 			}
 		}else if((getBlankPosition(arr)+1)<=6) {
 			if(blankPosition%3==0) {
@@ -146,39 +154,48 @@ class HuristicSolution{
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.LEFT;
 				moves[2] = Moves.UP;
-				return moves;
 			}else if(blankPosition%3==1){
 				moves = new Moves[3];
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.RIGHT;
 				moves[2] = Moves.UP;
-				return moves;
 			}else {
 				moves = new Moves[4];
 				moves[0] = Moves.DOWN;
 				moves[1] = Moves.RIGHT;
 				moves[2] = Moves.LEFT;
 				moves[3] = Moves.UP;
-				return moves;
 			}
 		}else {
 			if(blankPosition%3==0) {
 				moves = new Moves[2];
 				moves[0] = Moves.UP;
 				moves[1] = Moves.LEFT;
-				return moves;
 			}else if(blankPosition%3==1){
 				moves = new Moves[2];
 				moves[0] = Moves.UP;
 				moves[1] = Moves.RIGHT;
-				return moves;
 			}else {
 				moves = new Moves[3];
 				moves[0] = Moves.UP;
 				moves[1] = Moves.RIGHT;
-				moves[1] = Moves.LEFT;
-				return moves;
+				moves[2] = Moves.LEFT;
 			}
+		}
+		if(lastMove.equals(Moves.NONE)) {
+			return moves;
+		
+		}else {
+			Moves[] newMoves = new Moves[moves.length-1];
+			for(int i=0,j=0;i<moves.length;i++) {
+				if(moves[i].equals(lastMove)) {
+					continue;
+				}else {
+					newMoves[j]=moves[i];
+					j++;
+				}
+			}
+			return newMoves;
 		}
 	}
 
